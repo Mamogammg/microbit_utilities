@@ -1,0 +1,59 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro:Bit Code Generator</title>
+</head>
+<body>
+  <canvas id="microbit"></canvas>
+  <p id="debug"></p>
+  <button id="export">Export to code</button>
+  <p id="code">Your code: </p>
+  <div>
+    <input type="text" id="input">
+    <input type="submit" id="submit">
+  </div>
+  <script>
+    let canvas = document.getElementById("microbit")
+    let canvasWidth = window.innerHeight - 15    
+    let middleChange = (window.innerWidth - canvasWidth) / 2
+    let squareWidth = canvasWidth / 5
+    canvas.width = canvasWidth
+    canvas.height = canvasWidth
+    canvas.style.border = "1px solid #000"
+    canvas.style.position = "absolute"
+    canvas.style.left = middleChange + "px"
+    let ctx = canvas.getContext("2d")
+    let screen = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    function refresh() {
+      var distanceX = 0
+      var distanceY = 0
+      for (let i=0;i<25;i++){
+        ctx.fillStyle = (screen[i] == 1 ? "#ff0000" : "#ff8888");
+        ctx.fillRect((i % 5) * squareWidth + distanceX, Math.floor(i / 5) * squareWidth + distanceY, squareWidth, squareWidth);
+        distanceX ++
+        if (i % 5 == 4) {distanceX = 0; distanceY++} 
+      }
+    }
+    refresh()
+    canvas.addEventListener("click", (e) => {
+      let debug = document.getElementById("debug")
+      console.log((e.clientX - middleChange) / squareWidth)
+      let x = Math.floor((e.clientX - middleChange) / squareWidth)
+      let y = Math.floor(e.clientY / squareWidth)
+      let Idx = (x % 5) + (y * 5)
+      screen[Idx] = (screen[Idx] == 0 ? 1 : 0)
+      refresh()
+      debug.textContent = `x: ${x}, y: ${y}, idx: ${Idx}`
+    })
+    document.getElementById("export").addEventListener("click", (e) => {
+      document.getElementById("code").textContent = `Your code: ${screen.join('')}`
+    })
+    document.getElementById("submit").addEventListener("click", (e) => {
+      var text = document.getElementById("input").value
+      screen = text.split("")
+      refresh()
+    })
+  </script>
+</body>
+</html>
